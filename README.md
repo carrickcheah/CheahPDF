@@ -1,10 +1,10 @@
-# CheahPDF - PDF Color Inverter
+# BlackPDF - PDF Color Inverter
 
-![CheahPDF Interface](screenshot.png)
+![BlackPDF Interface](screenshot.png)
 
-**Description**: Free local Flask app converts PDF white backgrounds to black backgrounds with white text. Dark mode for PDFs. MIT licensed, runs locally, 600 DPI output.
+**Description**: Free local Flask app converts PDF white backgrounds to black backgrounds with white text. Dark mode for PDFs. MIT licensed, runs locally, 1000 DPI output.
 
-A simple Flask web application that converts PDF files from white background to black background with white text at high resolution (600 DPI).
+A simple Flask web application that converts PDF files from white background to black background with white text at high resolution (1000 DPI).
 
 ## Features
 
@@ -18,7 +18,7 @@ A simple Flask web application that converts PDF files from white background to 
 ## Project Structure
 
 ```
-cheahpdf/
+blackpdf/
 ├── app.py                 # Main Flask application
 ├── pdf_processor.py       # PDF color inversion logic
 ├── .env                   # Environment configuration
