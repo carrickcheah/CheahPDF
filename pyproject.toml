@@ -1,5 +1,5 @@
 [project]
-name = "blackpdf"
+name = "cheahpdf"
 version = "0.1.0"
 description = "Simple PDF color inverter - white background to black, white text"
 requires-python = ">=3.8"
