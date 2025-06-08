@@ -92,4 +92,10 @@ def upload_file():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8002)
+    # Use environment variables for host and port in production
+    import os
+    host = os.environ.get('HOST', '0.0.0.0')
+    port = int(os.environ.get('PORT', 8002))
+    debug = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    
+    app.run(host=host, port=port, debug=debug)
