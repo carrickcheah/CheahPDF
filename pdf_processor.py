@@ -7,12 +7,12 @@ from io import BytesIO
 def invert_pdf_colors(input_path, output_path, dpi=600):
     """
     Convert PDF white background to black, black text to white
-    Optimized for file size while maintaining quality
+    Cloud-optimized for memory efficiency
     
     Args:
         input_path: Path to input PDF
         output_path: Path to save inverted PDF
-        dpi: Output resolution (kept low for file size)
+        dpi: Output resolution (cloud-optimized)
     
     Returns:
         bool: Success status
@@ -43,17 +43,17 @@ def invert_pdf_colors(input_path, output_path, dpi=600):
             print(f"Processing page {page_num + 1}/{pdf_document.page_count}")
             page = pdf_document[page_num]
             
-            # Use high DPI as requested (minimum 600)
+            # Cloud-optimized DPI (lower for memory efficiency)
             page_rect = page.rect
             page_area = page_rect.width * page_rect.height
             
-            # Use high DPI but cap for very large pages to prevent excessive file sizes
+            # Lower DPI for cloud deployment to reduce memory usage
             if page_area > 1000000:  # Extremely large page
-                effective_dpi = 600
+                effective_dpi = 300
             elif page_area > 500000:  # Very large page  
-                effective_dpi = 700
+                effective_dpi = 400
             else:  # Normal page
-                effective_dpi = max(dpi, 600)  # Minimum 600 DPI
+                effective_dpi = min(dpi, 500)  # Max 500 DPI for cloud
             
             print(f"Using DPI: {effective_dpi} for page area: {page_area:.0f}")
             
@@ -80,11 +80,19 @@ def invert_pdf_colors(input_path, output_path, dpi=600):
                 inverted_img = inverted_img.resize(new_size, Image.Resampling.LANCZOS)
                 print(f"Resized very large image to: {new_size}")
             
-            # Save as high-quality JPEG
+            # Save as high-quality JPEG with error handling
             img_bytes = BytesIO()
-            inverted_img.save(img_bytes, format='JPEG', quality=92, optimize=True)
-            img_data_size = len(img_bytes.getvalue())
-            print(f"Compressed image size: {img_data_size/1024:.1f} KB")
+            try:
+                inverted_img.save(img_bytes, format='JPEG', quality=92, optimize=True)
+                img_data_size = len(img_bytes.getvalue())
+                print(f"Compressed image size: {img_data_size/1024:.1f} KB")
+            except Exception as e:
+                print(f"Error saving image: {e}")
+                # Fallback with lower quality
+                img_bytes = BytesIO()
+                inverted_img.save(img_bytes, format='JPEG', quality=80)
+                img_data_size = len(img_bytes.getvalue())
+                print(f"Saved with fallback quality: {img_data_size/1024:.1f} KB")
             
             # Create new page and insert image
             new_page = output_pdf.new_page(width=page_rect.width, height=page_rect.height)
@@ -92,11 +100,25 @@ def invert_pdf_colors(input_path, output_path, dpi=600):
             
             print(f"Page {page_num + 1} processed successfully")
         
-        # Save with maximum compression
+        # Save with maximum compression and error handling
         print(f"Saving output PDF with compression...")
-        output_pdf.save(output_path, garbage=4, deflate=True, clean=True)
-        output_pdf.close()
-        pdf_document.close()
+        try:
+            # Ensure output directory exists
+            output_dir = os.path.dirname(output_path)
+            if output_dir and not os.path.exists(output_dir):
+                os.makedirs(output_dir, exist_ok=True)
+                print(f"Created output directory: {output_dir}")
+            
+            output_pdf.save(output_path, garbage=4, deflate=True, clean=True)
+            print(f"PDF saved successfully to: {output_path}")
+        except Exception as e:
+            print(f"Error saving PDF: {e}")
+            # Try saving without compression as fallback
+            output_pdf.save(output_path)
+            print("PDF saved with fallback method")
+        finally:
+            output_pdf.close()
+            pdf_document.close()
         
         # Report results
         output_size = os.path.getsize(output_path)

@@ -11,12 +11,12 @@ services:
       - HOST=0.0.0.0
       - PORT=8002
       - UPLOAD_FOLDER=uploads
-      - OUTPUT_FOLDER=outputs
+      - OUTPUT_FOLDER=output
       - MAX_FILE_SIZE=52428800
       - PDF_DPI=600
     volumes:
       - ./uploads:/app/uploads
-      - ./outputs:/app/outputs
+      - ./output:/app/output
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8002/health"]

@@ -1,5 +1,6 @@
 from flask import Flask, request, send_file, render_template, flash, redirect, url_for
 import os
+import logging
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from pdf_processor import invert_pdf_colors
@@ -10,9 +11,15 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'
 
-# Configuration from .env
-UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'uploads')
-OUTPUT_FOLDER = os.getenv('OUTPUT_FOLDER', 'outputs')
+# Configure logging for production
+if os.environ.get('FLASK_ENV') == 'production':
+    logging.basicConfig(level=logging.INFO)
+    app.logger.setLevel(logging.INFO)
+
+# Configuration from .env - Use /tmp for cloud deployment
+import tempfile
+UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', tempfile.gettempdir() + '/uploads')
+OUTPUT_FOLDER = os.getenv('OUTPUT_FOLDER', tempfile.gettempdir() + '/outputs')
 MAX_FILE_SIZE = int(os.getenv('MAX_FILE_SIZE', 52428800))  # 50MB default
 PDF_DPI = int(os.getenv('PDF_DPI', 1000))
 
@@ -39,6 +46,18 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload_file():
     print("=== Upload request received ===")
+    print(f"Upload folder: {app.config['UPLOAD_FOLDER']}")
+    print(f"Output folder: {app.config['OUTPUT_FOLDER']}")
+    
+    # Check directory permissions
+    try:
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
+        print("✓ Directories created successfully")
+    except Exception as e:
+        print(f"✗ Directory creation failed: {e}")
+        flash(f'Server error: Cannot create directories - {e}')
+        return redirect(url_for('index'))
     
     if 'file' not in request.files:
         print("ERROR: No file in request")
