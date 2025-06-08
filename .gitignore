@@ -192,6 +192,9 @@ services/news_signal/data
 # windsurf rules
 .windsurfrules
 
+# PDF processing outputs
+outputs/
+papers/
 
 supabase-js
 manual.md
